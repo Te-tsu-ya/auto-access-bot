@@ -1,0 +1,25 @@
+name: Auto Access
+
+on:
+  schedule:
+    - cron: "0 0,12 * * *"  # 日本時間で毎日9時と21時に実行
+  workflow_dispatch:
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: コードをチェックアウト
+        uses: actions/checkout@v3
+
+      - name: Pythonをセットアップ
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: ライブラリをインストール
+        run: pip install requests
+
+      - name: スクリプトを実行
+        run: python main.py
