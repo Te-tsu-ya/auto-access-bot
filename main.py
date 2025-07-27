@@ -35,3 +35,4 @@ if __name__ == "__main__":
         "https://murakami.mypl.net/shop/00000377236/news?d=2926707"
     ]
     run_auto_refresh(target_urls, interval=3, max_refreshes=15)
+
