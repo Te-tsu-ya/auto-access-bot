@@ -32,7 +32,22 @@ if __name__ == "__main__":
         "https://murakami.mypl.net/shop/00000377236/news?d=2926707",
         "https://murakami.mypl.net/shop/00000377236/news?d=2926707",
         "https://murakami.mypl.net/shop/00000377236/news?d=2926707",
-        "https://murakami.mypl.net/shop/00000377236/news?d=2926707"
+        "https://murakami.mypl.net/shop/00000377236/news?d=2926707",
+        "https://www.itec1999.com/",
+        "https://www.itec1999.com/company/",
+        "https://www.itec1999.com/business/",
+        "https://www.itec1999.com/news/",
+        "https://www.itec1999.com/news/245/",
+        "https://www.itec1999.com/news/243/",
+        "https://www.itec1999.com/news/240/",
+        "https://www.itec1999.com/news/240/",
+        "https://www.itec1999.com/news/238/",
+        "https://www.itec1999.com/recruit/merit/",
+        "https://www.itec1999.com/recruit/jobs/",
+        "https://www.itec1999.com/recruit/environment/",
+        "https://www.itec1999.com/recruit/requirements/",
+        "https://www.itec1999.com/recruit/"
     ]
     run_auto_refresh(target_urls, interval=3, max_refreshes=15)
+
 
