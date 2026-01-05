@@ -51,13 +51,12 @@
 #    run_auto_refresh(target_urls, interval=3, max_refreshes=15)
 
 
-
 import time
 import threading
 import requests
 import random
-from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urldefrag
+from html.parser import HTMLParser
 
 
 # ===== 設定 =====
@@ -70,24 +69,36 @@ MIN_INTERVAL = 10
 MAX_INTERVAL = 30
 MAX_REFRESHES = 1
 
-MAX_DISCOVER_PAGES = 200   # ★ 無限ループ防止（安全装置）
+MAX_DISCOVER_PAGES = 200   # 無限ループ防止
 # =================
 
 
+class LinkExtractor(HTMLParser):
+    """HTMLからaタグのhrefだけを抜き出す（標準ライブラリのみ）"""
+    def __init__(self):
+        super().__init__()
+        self.hrefs = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag.lower() != "a":
+            return
+        for k, v in attrs:
+            if k.lower() == "href" and v:
+                self.hrefs.append(v)
+
+
 def collect_urls_from_page(page_url, base_url):
-    """1ページから、BASEで始まるURLを集める"""
+    """1ページから、BASEで始まるURLを集める（bs4不要）"""
     urls = []
     try:
         res = requests.get(page_url, timeout=10)
         if res.status_code != 200:
             return urls
 
-        soup = BeautifulSoup(res.text, "html.parser")
-        for a in soup.select("a[href]"):
-            href = a.get("href")
-            if not href:
-                continue
+        parser = LinkExtractor()
+        parser.feed(res.text)
 
+        for href in parser.hrefs:
             full_url = urljoin(page_url, href)
             full_url, _ = urldefrag(full_url)
 
@@ -134,6 +145,7 @@ if __name__ == "__main__":
     for base in BASE_URLS:
         target_urls.append(base)
 
+    # 重複削除（順序維持）
     target_urls = list(dict.fromkeys(target_urls))
 
     index = 0
