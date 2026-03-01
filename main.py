@@ -201,7 +201,7 @@ BASE_CONFIGS = [
         "max_discover_pages": 200,
     },
     {
-        "base_url": "https://murakami.mypl.net/shop/00000372475/",
+        "base_url": "https://murakami.mypl.net/",
         "max_discover_pages": 100,
     },
     {
@@ -336,3 +336,4 @@ if __name__ == "__main__":
         MAX_INTERVAL,
         MAX_REFRESHES
     )
+
