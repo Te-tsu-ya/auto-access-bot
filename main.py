@@ -204,9 +204,6 @@ BASE_CONFIGS = [
         "base_url": "https://murakami.mypl.net/shop/00000372475/",
         "max_discover_pages": 100,
     },
-
-
-    
     {
         "base_url": "https://www.itec1999.com/",
         "max_discover_pages": 100,
@@ -234,11 +231,12 @@ class LinkExtractor(HTMLParser):
 
 
 def collect_urls_from_page(page_url, base_url):
-    """1ページから、base_urlで始まるURLを集める（bs4不要）"""
+    """1ページから、base_urlで始まるURLを集める"""
     urls = []
     try:
         res = requests.get(page_url, timeout=10)
         if res.status_code != 200:
+            print(f"{page_url} の取得失敗: status={res.status_code}")
             return urls
 
         parser = LinkExtractor()
@@ -261,12 +259,13 @@ def auto_refresh(url, min_interval, max_interval, max_refreshes):
     for i in range(max_refreshes):
         try:
             res = requests.get(url, timeout=10)
-            print(f"{url} にアクセス {i+1}/{max_refreshes} - {res.status_code}")
+            print(f"{url} にアクセス {i + 1}/{max_refreshes} - {res.status_code}")
         except Exception as e:
             print(f"{url} アクセス失敗: {e}")
 
-        wait = random.uniform(min_interval, max_interval)
-        time.sleep(wait)
+        if i < max_refreshes - 1:
+            wait = random.uniform(min_interval, max_interval)
+            time.sleep(wait)
 
 
 def run_auto_refresh(urls, min_interval, max_interval, max_refreshes):
@@ -285,8 +284,8 @@ def run_auto_refresh(urls, min_interval, max_interval, max_refreshes):
 
 def discover_urls_for_base(base_url, max_discover_pages):
     """
-    base_url配下のURLを探索する（baseごとに上限を適用）
-    max_discover_pages は「探索対象URLの最大数」
+    base_url配下のURLを探索する
+    max_discover_pages は探索対象URLの最大数
     """
     target_urls = [base_url]
     target_urls = list(dict.fromkeys(target_urls))
@@ -297,8 +296,10 @@ def discover_urls_for_base(base_url, max_discover_pages):
 
         new_urls = collect_urls_from_page(current_url, base_url)
         before = len(target_urls)
+
         target_urls.extend(new_urls)
         target_urls = list(dict.fromkeys(target_urls))
+
         after = len(target_urls)
 
         if after > before:
@@ -306,40 +307,34 @@ def discover_urls_for_base(base_url, max_discover_pages):
 
         index += 1
 
-    # 上限を超えて増えてしまった分があれば切る（安全）
-    target_urls = target_urls[:max_discover_pages]
-    return target_urls
+    return target_urls[:max_discover_pages]
 
 
-if __name__ == "__main__":
-    all_target_urls = []
+def process_base_config(conf):
+    """1つのbase_urlについて、探索 → アクセスまで実行する"""
+    base_url = conf["base_url"]
+    max_pages = conf["max_discover_pages"]
 
-    # === BASEごとに探索 ===
-    for conf in BASE_CONFIGS:
-        base_url = conf["base_url"]
-        max_pages = conf["max_discover_pages"]
+    print(f"\n=== 探索開始: {base_url}（最大 {max_pages}）===")
+    urls = discover_urls_for_base(base_url, max_pages)
 
-        print(f"\n=== 探索開始: {base_url}（最大 {max_pages}）===")
-        urls = discover_urls_for_base(base_url, max_pages)
+    print(f"\n=== 探索完了: {base_url}（重複なし {len(urls)} 件）===")
+    for u in urls:
+        print(u)
 
-        print(f"\n=== 探索完了: {base_url}（重複なし {len(urls)} 件）===")
-        for u in urls:
-            print(u)
-
-        all_target_urls.extend(urls)
-
-    # 全体でも重複排除
-    all_target_urls = list(dict.fromkeys(all_target_urls))
-
-    # === アクセスフェーズ ===
-    print(f"\n=== アクセス開始（合計 {len(all_target_urls)} URL）===")
+    print(f"\n=== アクセス開始: {base_url}（対象 {len(urls)} URL）===")
     run_auto_refresh(
-        all_target_urls,
+        urls,
         MIN_INTERVAL,
         MAX_INTERVAL,
         MAX_REFRESHES
     )
 
+    print(f"\n=== アクセス完了: {base_url} ===")
 
 
+if __name__ == "__main__":
+    for conf in BASE_CONFIGS:
+        process_base_config(conf)
 
+    print("\n=== すべて完了 ===")
