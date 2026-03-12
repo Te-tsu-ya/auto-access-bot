@@ -197,10 +197,6 @@ from html.parser import HTMLParser
 # ===== 設定 =====
 BASE_CONFIGS = [
     {
-        "base_url": "https://murakami.mypl.net/shop/00000377236/",
-        "max_discover_pages": 120,
-    },
-    {
         "base_url": "https://murakami.mypl.net/shop/00000363625/",
         "max_discover_pages": 100,
     },
@@ -362,6 +358,10 @@ BASE_CONFIGS = [
     },
     {
         "base_url": "https://murakami.mypl.net/shop/00000377138/",
+        "max_discover_pages": 100,
+    },
+    {
+        "base_url": "https://murakami.mypl.net/shop/00000377236/",
         "max_discover_pages": 100,
     },
     {
@@ -730,4 +730,5 @@ if __name__ == "__main__":
         process_base_config(conf)
 
     print("\n=== すべて完了 ===")
+
 
